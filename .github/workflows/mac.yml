@@ -11,7 +11,7 @@ jobs:
       - name: Start SSH Tunnel
         run: |
           tmate -S /tmp/tmate.sock new-session -d
-          tmate -S /tmp/tmate.sock wait-shell
+          sleep 5
           echo "=========================================================="
           echo "SSH CONNECTION DETAILS BELOW:"
           tmate -S /tmp/tmate.sock display -p '#{tmate_ssh}'

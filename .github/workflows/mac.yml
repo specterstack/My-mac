@@ -1,0 +1,25 @@
+name: Remote macOS SSH
+on: workflow_dispatch
+
+jobs:
+  connect:
+    runs-on: macos-14
+    steps:
+      - name: Install tmate
+        run: brew install tmate
+
+      - name: Start SSH Tunnel
+        run: |
+          tmate -S /tmp/tmate.sock new-session -d
+          tmate -S /tmp/tmate.sock wait-shell
+          echo "=========================================================="
+          echo "SSH CONNECTION DETAILS BELOW:"
+          tmate -S /tmp/tmate.sock display -p '#{tmate_ssh}'
+          echo "=========================================================="
+          
+      - name: Keep Alive
+        run: |
+          echo "Keep-alive active. Loop will run for up to 6 hours or until canceled."
+          while [ -f /tmp/tmate.sock ]; do
+            sleep 10
+          done

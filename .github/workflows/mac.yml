@@ -10,16 +10,28 @@ jobs:
 
       - name: Start SSH Tunnel
         run: |
+          # Start the tmate session in the background
           tmate -S /tmp/tmate.sock new-session -d
-          sleep 5
-          echo "=========================================================="
-          echo "SSH CONNECTION DETAILS BELOW:"
-          tmate -S /tmp/tmate.sock display -p '#{tmate_ssh}'
-          echo "=========================================================="
+          
+          echo "Waiting for tmate to generate SSH connection details..."
+          
+          # Force a loop to wait until the token is explicitly generated
+          while true; do
+            SSH_CMD=$(tmate -S /tmp/tmate.sock display -p '#{tmate_ssh}' 2>/dev/null)
+            if [ ! -z "$SSH_CMD" ]; then
+              echo "=========================================================="
+              echo "SSH CONNECTION DETAILS BELOW:"
+              echo "$SSH_CMD"
+              echo "=========================================================="
+              break
+            fi
+            sleep 2
+          done
           
       - name: Keep Alive
         run: |
           echo "Keep-alive active. Loop will run for up to 6 hours or until canceled."
+          # Loop keeps running as long as the socket file or the tmate process exists
           while [ -f /tmp/tmate.sock ]; do
             sleep 10
           done
